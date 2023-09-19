@@ -2,7 +2,8 @@
 #include "okapi/api/chassis/controller/odomChassisController.hpp"
 #include "okapi/impl/util/timeUtilFactory.hpp"
 #include "rrlib/util/feedforward.hpp"
-#include<memory>
+#include "rrlib/motion/odometry.hpp"
+#include <memory>
 
 
 namespace RRLib{
@@ -11,6 +12,7 @@ using namespace okapi;
 class AdaptivePurePursuitController{
     FeedForwardv3 feedForwardLeft;
     FeedForwardv3 feedForwardRight;
+    TwoWheelOdometry odometry;
 
     public:
     struct Gains{

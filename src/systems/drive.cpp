@@ -2,57 +2,50 @@
 
 namespace drive {
 // Motors, measurements, encoders
-MotorGroup leftMotors({-10, 8, -17});
-MotorGroup rightMotors({19, 15, -14});
+MotorGroup leftMotors({-5, -7});
+MotorGroup rightMotors({15, 16});
 
-pros::Imu inertialSensor(16);
+pros::Imu inertialSensor(1);
 
-bool isHold = false;
 QLength movePidDistance = 0_cm;
 bool PIDisSettled = true;
 
 Controller controller;
 
-ChassisScales trackingWheelsScales ({2.756_in, 18.57405_cm}, 360);
-ChassisScales drivenWheelsScales ({3.25_in, 11.57_in}, (imev5BlueTPR*5/3));
+ChassisScales trackingWheelsScales ({2.756_in, 17_cm}, 360);
+ChassisScales drivenWheelsScales ({3.25_in, 23_cm}, (imev5BlueTPR*5/3));
 
-ControllerButton toggleHoldMode= controller[ControllerDigital::right];
 
-//ADIEncoder leftTrackingEncoder('G', 'H');
-//ADIEncoder rightTrackingEncoder('E', 'F');
-
-//RotationSensor leftTrackingEncoder (20);
-//RotationSensor rightTrackingEncoder (18, true);
-
-//std::shared_ptr<pros::Rotation> leftRotation = std::make_shared<pros::Rotation>(20);
-//std::shared_ptr<pros::Rotation> rightRotation = std::make_shared<pros::Rotation>(18);
+ADIEncoder leftTrackingEncoder('A', 'B', true);
+ADIEncoder rightTrackingEncoder('G', 'H', true);
 
 
 // Gears
 AbstractMotor::GearsetRatioPair gearing(AbstractMotor::gearset::blue, 5.0/3.0);
 
-std::shared_ptr<ChassisController> driveChassis = ChassisControllerBuilder()
+std::shared_ptr<OdomChassisController> driveChassis = ChassisControllerBuilder()
 .withMotors(leftMotors, rightMotors)
-.withSensors(leftMotors.getEncoder(), rightMotors.getEncoder())
+.withSensors(leftTrackingEncoder, rightTrackingEncoder)
 .withDimensions(AbstractMotor::gearset::blue, drivenWheelsScales)
-.build();
+.withOdometry(trackingWheelsScales)
+.buildOdometry();
 
 std::shared_ptr<ChassisModel> driveChassisPtr = driveChassis->getModel();
 
 // Creates an odometry object
-//TwoWheelOdometry odometry(driveChassisPtr, trackingWheelsScales);
+TwoWheelOdometry odometry(driveChassisPtr, trackingWheelsScales);
 // Creates a pointer to the odometry object, some controllers want pointers
-//auto odometryPtr = std::shared_ptr<RRLib::PoseEstimator>(&odometry);
+auto odometryPtr = std::shared_ptr<RRLib::PoseEstimator>(&odometry);
 
 
 
 // this creats a task which constantly calculates the odometry
-// pros::Task odometryUpdateTask([&] {
-//         while(1){
-//             odometry.update();
-//             pros::delay(10);
-//         }
-//     });
+pros::Task odometryUpdateTask([] {
+        while(1){
+            odometry.update();
+            pros::delay(10);
+        }
+    });
 
 // calculate below:
 // radius of a 4" omni is 2.0625"
@@ -94,7 +87,6 @@ FeedForwardGains2 leftScurveGain3{6350, 1500, 96000, 0, 1000, 1000};
 FeedForwardGains2 rightScurveGain3{6400, 1500, 96000, 0, 1000, 1000};
 
 
-//betterLinearProfile linearProflie(yes, driveChassis, drivenWheelsScales, gearing, leftGains3, rightGains3);
 
 scurveProfile linearScurveProfile(
     constraints2, 
@@ -106,10 +98,6 @@ scurveProfile linearScurveProfile(
     leftGains3, 
     rightGains3);
 
-
-
-// creates a profile controller
-//ProfileController profileController(driveChassisPtr, odometryPtr, constraints, drivenWheelsScales, gearing, {0, 0}, 2);
 
 
 void setMotors(double left, double right){
@@ -183,22 +171,25 @@ void resetMotorEncoder(){
     leftMotors.tarePosition();
 }
 
-void printMotorEncoders(){
-    pros::lcd::print(6, "left motor enc %f", leftMotors.getPosition());
-    pros::lcd::print(7, "right motor enc %f", rightMotors.getPosition());
+void printEncoders(){
+    pros::lcd::print(6, "left motor enc %f", leftTrackingEncoder.get());
+    pros::lcd::print(7, "right motor enc %f", rightTrackingEncoder.get());
 }
 
-// void printOdomEncoders(){
-//     //auto newSensorVals = driveChassisPtr->getSensorVals();
-//     //pros::lcd::print(6, "left odom enc %d", newSensorVals[0]);
-//     //pros::lcd::print(7, "right odom enc %d", newSensorVals[1]);
-//     printf("left %f right %f \n", odometry.getLeftEnc(), odometry.getRightEnc());
-// }
 
-// void printOdomPos(){
-//     printf("gyro angle %f", inertialSensor.get_heading());
-//     printf("x %f, y %f, a %f \n", odometry.getPose().position.getX().convert(centimeter), odometry.getPose().position.getY().convert(centimeter), odometry.getPose().heading.convert(degree));
-// }
+void printOdomPos(){
+    printf("gyro angle %f", math::constrainAngleDouble(inertialSensor.get_heading()));
+    printf(", x %f, y %f, a %f \n", odometry.getPose().position.getX().convert(centimeter), odometry.getPose().position.getY().convert(centimeter), odometry.getPose().heading.convert(degree));
+}
+
+void printChassisOdomPos(){
+    printf("gyro angle %f", math::constrainAngleDouble(inertialSensor.get_heading()));
+    printf(", x %f, y %f, a %f \n", 
+        driveChassis->getState().x.convert(centimeter),
+        driveChassis->getState().y.convert(centimeter), 
+        driveChassis->getState().theta.convert(degree));
+}
+
 
 // void resetOdomEncoders(){
 //     //driveChassisPtr->resetSensors();
