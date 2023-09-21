@@ -1,4 +1,5 @@
 #include "rrlib/util/math.hpp"
+#include "rrlib/util/Vector2.hpp"
 
 namespace RRLib {
 using namespace okapi;
@@ -22,8 +23,45 @@ QAngle constrainAngle(QAngle in, QAngle min, QAngle max) {
     return out * radian;
 }
 
-double encoderTickToMeter(double encoderTicks){
-        return encoderTicks/300 * (3.0 / 5.0) * 0.08255 * 3.141592653589793116;
+
+QLength getCircumRadius(Vector2& a, Vector2& b, Vector2& c){
+    QLength a1 = b.distanceTo(c);
+    QLength b1 = c.distanceTo(a);
+    QLength c1 = a.distanceTo(b);
+    
+
+    QLength semiPerimeter = (a1 + b1 + c1) / 2.0;
+    double area = 
+    sqrt(semiPerimeter.convert(meter) * (semiPerimeter.convert(meter) - a1.convert(meter)) * (semiPerimeter.convert(meter) - b1.convert(meter)) * (semiPerimeter.convert(meter) - c1.convert(meter)));
+    QLength radius = a1.convert(meter) * b1.convert(meter) * c1.convert(meter) / area / 4.0 * meter;
+    return radius;
+}
+
+std::optional<double> circleLineIntersection(Vector2& start, Vector2& end, Vector2& point, QLength radius){
+    Vector2 d = end - start;
+    Vector2 f = start - point;
+
+    auto a = d.dot(d);
+    auto b = 2 * (f.dot(d));
+    auto c = (f.dot(f).convert(meter) - (radius.convert(meter) * radius.convert(meter))) * meter;
+    auto discriminant = b * b - 4 * a * c; 
+
+    if(discriminant.getValue() >= 0){
+        const auto dis = sqrt(discriminant);
+        const double t1 = ((-1 * b - dis) / (2 * a)).convert(number);
+        const double t2 = ((-1 * b + dis) / (2 * a)).convert(number);
+
+        if(t2 >= 0 && t2 <= 1){
+            return t2;
+        }
+        else if(t1 >= 0 && t1 <= 1){
+            return t1;
+        }   
     }
+
+    return std::nullopt;
+}
+
+
 }
 }

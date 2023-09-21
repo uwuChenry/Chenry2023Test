@@ -2,19 +2,6 @@
 
 namespace RRLib{
 
-AdaptivePurePursuitController::AdaptivePurePursuitController(
-    const std::shared_ptr<OdomChassisController>& chassis, 
-    const Gains& gains,
-    std::unique_ptr<FeedforwardController<QLength>> leftController,
-    std::unique_ptr<FeedforwardController<QLength>> rightController,
-    const TimeUtil& timeUtil) : chassis(chassis), gains(gains), timeUtil(timeUtil), task([](){}){
-
-    leftMotor = std::static_pointer_cast<SkidSteerModel>(chassis->getModel())->getLeftSideMotor();
-    rightMotor = std::static_pointer_cast<SkidSteerModel>(chassis->getModel())->getLeftSideMotor();
-
-    this->leftController = std::move(leftController);
-    this->rightController = std::move(rightController);
-}
 
 void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout, bool isReversed){
     auto closestPointIter = path.begin();
@@ -30,7 +17,7 @@ void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout
         closestPointIter = closestPoint(closestPointIter, path.end(), pos.getTranslation());
         lookAheadPoint = getLookaheadPoint(path, lookaheadPointT, pos.getTranslation(), gains.lookAhead).value_or(lookAheadPoint);
         
-        QCurvature curvature = curvatureToReachPoint(pos, lookAheadPoint);
+        double curvature = curvatureToReachPoint(pos, lookAheadPoint);
         QSpeed velocity;
         QAcceleration acceleration;
 
@@ -74,11 +61,11 @@ void waitUntilSettled(){
     }
 }
 
-std::optional<Translation> AdaptivePurePursuitController::getLookaheadPoint(DiscretePath& path, double& minIndex, const Point& point, QLength radius){
+std::optional<Vector2> AdaptivePurePursuitController::getLookaheadPoint(DiscretePath& path, double& minIndex, const Point& point, QLength radius){
     for(int i = (int)minIndex; i < path.size(); i++){
-        const Point& start = path[i];
-        const Point& end = path[i+1];
-        const auto t = circleLineIntersection(start, end, point, radius);
+        const Vector2& start = path[i];
+        const Vector2& end = path[i+1];
+        const auto t = math::circleLineIntersection(start, end, point, radius);
 
         if(t && t.value() >= minIndex){
             minIndex = t.value();

@@ -3,6 +3,7 @@
 #include "okapi/impl/util/timeUtilFactory.hpp"
 #include "rrlib/util/feedforward.hpp"
 #include "rrlib/motion/odometry.hpp"
+#include "rrlib/util/DescretePath.hpp"
 #include <memory>
 
 

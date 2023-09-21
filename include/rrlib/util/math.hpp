@@ -1,7 +1,8 @@
 #pragma once
 
-#include "okapi/api/units/QAngle.hpp"
-
+#include "okapi/api/units/QLength.hpp"
+#include <optional>
+#include "rrlib/util/Vector2.hpp"
 
 
 
@@ -13,6 +14,9 @@ using namespace okapi::literals;
 okapi::QAngle constrainAngle(okapi::QAngle in, okapi::QAngle min = -180_deg, okapi::QAngle max = 180_deg);
 double constrainAngleDouble(double angle);
 double encoderTickToMeter(double encoderTicks);
+std::optional<double> circleLineIntersection(Vector2& start, Vector2& end, Vector2& point, QLength radius);
+okapi::QLength getCircumRadius(Vector2& a, Vector2& b, Vector2& c);
+
 }
 
 class Settled {
