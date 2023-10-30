@@ -45,5 +45,5 @@ class DiscretePath{
     std::vector<Vector2> path;
 };
 
-std::vector<Translation>::iterator closestPoint(std::vector<Translation>::iterator begin, std::vector<Translation>::iterator end, const Point& point);
+std::vector<Vector2>::iterator closestPoint(std::vector<Vector2>::iterator begin, std::vector<Vector2>::iterator end, Vector2 point);
 }

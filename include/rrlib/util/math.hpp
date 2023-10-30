@@ -15,7 +15,7 @@ okapi::QAngle constrainAngle(okapi::QAngle in, okapi::QAngle min = -180_deg, oka
 double constrainAngleDouble(double angle);
 double encoderTickToMeter(double encoderTicks);
 std::optional<double> circleLineIntersection(Vector2& start, Vector2& end, Vector2& point, QLength radius);
-okapi::QLength getCircumRadius(Vector2& a, Vector2& b, Vector2& c);
+okapi::QLength getCircumRadius(Vector2 a, Vector2 b, Vector2 c);
 
 }
 

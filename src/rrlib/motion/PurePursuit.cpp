@@ -6,41 +6,41 @@ namespace RRLib{
 void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout, bool isReversed){
     auto closestPointIter = path.begin();
     double lookaheadPointT = 0;
-    Point lookAheadPoint = path.front();
+    Vector2 lookAheadPoint = path.front();
     const ChassisScales scales = chassis->getChassisScales();
     timeUtil.getTimer()->placeMark();
 
 
 
     do{
-        const Pose pos = odometry.getPose();
-        closestPointIter = closestPoint(closestPointIter, path.end(), pos.getTranslation());
-        lookAheadPoint = getLookaheadPoint(path, lookaheadPointT, pos.getTranslation(), gains.lookAhead).value_or(lookAheadPoint);
+        Pose pos = odometry.getPose();
+        closestPointIter = closestPoint(closestPointIter, path.end(), pos.position);
+        lookAheadPoint = getLookaheadPoint(path, lookaheadPointT, pos.position, gains.lookAhead).value_or(lookAheadPoint);
         
-        double curvature = curvatureToReachPoint(pos, lookAheadPoint);
-        QSpeed velocity;
-        QAcceleration acceleration;
+        // double curvature = curvatureToReachPoint(pos, lookAheadPoint);
+        // QSpeed velocity;
+        // QAcceleration acceleration;
 
-        if(isReversed){
-            acceleration *= -1;
-            velocity *= -1;
-            curvature *= -1;
-        }
+        // if(isReversed){
+        //     acceleration *= -1;
+        //     velocity *= -1;
+        //     curvature *= -1;
+        // }
 
-        const auto [leftVelocity, rightVelocity] = wheelForwardKinematics(velocity, curvature, scales.wheelTrack);
-        const auto [leftAccel, rightAccel] = wheelForwardKinematics(acceleration, curvature, scales.wheelTrack);
+        // const auto [leftVelocity, rightVelocity] = wheelForwardKinematics(velocity, curvature, scales.wheelTrack);
+        // const auto [leftAccel, rightAccel] = wheelForwardKinematics(acceleration, curvature, scales.wheelTrack);
 
-        if(leftController && rightController){
-            const double leftVoltage = leftController->calculate(leftVelocity, leftAccel);
-            const double rightVoltage = leftController->calculate(rightVelocity, rightAccel);
-            chassis->getModel()->tank(leftVoltage, rightVoltage);
-        }
-        else{
-            const double leftRPM = linearToWheelVelocity(leftVelocity, scales.wheelTrack).convert(rpm) * chassis->getGearsetRatioPair().ratio;
-            const double rightRPM = linearToWheelVelocity(leftVelocity, scales.wheelTrack).convert(rpm) * chassis->getGearsetRatioPair().ratio;
-            leftMotor->moveVelocity(leftRPM);
-            rightMotor->moveVelocity(rightRPM);
-        }
+        // if(leftController && rightController){
+        //     const double leftVoltage = leftController->calculate(leftVelocity, leftAccel);
+        //     const double rightVoltage = leftController->calculate(rightVelocity, rightAccel);
+        //     chassis->getModel()->tank(leftVoltage, rightVoltage);
+        // }
+        // else{
+        //     const double leftRPM = linearToWheelVelocity(leftVelocity, scales.wheelTrack).convert(rpm) * chassis->getGearsetRatioPair().ratio;
+        //     const double rightRPM = linearToWheelVelocity(leftVelocity, scales.wheelTrack).convert(rpm) * chassis->getGearsetRatioPair().ratio;
+        //     leftMotor->moveVelocity(leftRPM);
+        //     rightMotor->moveVelocity(rightRPM);
+        // }
 
         if(*closestPointIter == path.back()){
             return;
@@ -61,10 +61,10 @@ void waitUntilSettled(){
     }
 }
 
-std::optional<Vector2> AdaptivePurePursuitController::getLookaheadPoint(DiscretePath& path, double& minIndex, const Point& point, QLength radius){
+std::optional<Vector2> AdaptivePurePursuitController::getLookaheadPoint(DiscretePath& path, double& minIndex, Vector2 point, QLength radius){
     for(int i = (int)minIndex; i < path.size(); i++){
-        const Vector2& start = path[i];
-        const Vector2& end = path[i+1];
+        Vector2& start = path[i];
+        Vector2& end = path[i+1];
         const auto t = math::circleLineIntersection(start, end, point, radius);
 
         if(t && t.value() >= minIndex){

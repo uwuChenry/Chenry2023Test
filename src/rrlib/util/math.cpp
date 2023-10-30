@@ -24,7 +24,7 @@ QAngle constrainAngle(QAngle in, QAngle min, QAngle max) {
 }
 
 
-QLength getCircumRadius(Vector2& a, Vector2& b, Vector2& c){
+QLength getCircumRadius(Vector2 a, Vector2 b, Vector2 c){
     QLength a1 = b.distanceTo(c);
     QLength b1 = c.distanceTo(a);
     QLength c1 = a.distanceTo(b);

@@ -43,7 +43,7 @@ class AdaptivePurePursuitController{
 
     private:
 
-    std::optional<Point> getLookaheadPoint(DiscretePath& path, double& minIndex, const Point& point, QLength radius);
+    std::optional<Vector2> getLookaheadPoint(DiscretePath& path, double& minIndex, Vector2 point, QLength radius);
     void generateKinematics();
 
     std::shared_ptr<OdomChassisController> chassis;
@@ -53,9 +53,6 @@ class AdaptivePurePursuitController{
     Gains gains;
 
 	TimeUtil timeUtil;
-
-	std::unique_ptr<FeedforwardController<QLength>> leftController;
-	std::unique_ptr<FeedforwardController<QLength>> rightController;
 
     pros::Task task;
 };
