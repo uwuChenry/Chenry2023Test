@@ -102,9 +102,13 @@ double DiscretePath::getCurvature(int index) const{
     return 1 / radius.convert(meter);
 }
 
+// bool myThing (Vector2& a, Vector2& b, Vector2 point){
+//     return a.distanceTo(point) <= b.distanceTo(point);
+// }
+
 std::vector<Vector2>::iterator closestPoint(std::vector<Vector2>::iterator begin, std::vector<Vector2>::iterator end, Vector2 point){
     const auto comparison = [point](Vector2& a, Vector2& b){
-        return a.distanceTo(point) < b.distanceTo(point);
+        return a.distanceTo(point) <= b.distanceTo(point);
     };
 
     return std::min_element(begin, end, comparison);

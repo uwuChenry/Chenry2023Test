@@ -2,6 +2,21 @@
 
 namespace RRLib{
 
+int AdaptivePurePursuitController::getClosestPoint(Pose currentPos, DiscretePath& path){
+    QLength minDist {std::numeric_limits<double>::max()};
+    int closest = prevClosest.value_or(0);
+
+    for(int i = closest; i < path.size(); i++){
+        QLength dist = currentPos.position.distanceTo(path[i]);
+        if(dist < minDist){
+            minDist = dist;
+            closest = i;
+        }
+    }
+
+    prevClosest = closest;
+    return closest;
+}
 
 void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout, bool isReversed){
     auto closestPointIter = path.begin();
@@ -14,6 +29,7 @@ void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout
     do{
         Pose pos = {chassisController->getState().x, chassisController->getState().y, chassisController->getState().theta};
         closestPointIter = closestPoint(closestPointIter, path.end(), pos.position);
+        
         lookAheadPoint = getLookaheadPoint(path, lookaheadPointT, pos.position, lookAhead).value_or(lookAheadPoint);
         double angularError = (pos.position.angleTo(lookAheadPoint) - pos.heading).convert(degree);
 
@@ -26,7 +42,10 @@ void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout
         if(*closestPointIter == path.back()){
             return;
         }
-
+        auto thing = *closestPointIter;
+        printf("%f cloestpointx, %f pos.possition \n", thing.getX().convert(centimeter), pos.position.getX().convert(centimeter));
+        //printf("%f path back", path.back().getX().convert(centimeter));
+        pros::delay(10);
     } while(*closestPointIter != path.back() && timeUtil.getTimer()->getDtFromMark() < timeout);
     chassisController->stop();
 }
@@ -43,7 +62,7 @@ void waitUntilSettled(){
     }
 }
 
-std::optional<Vector2> AdaptivePurePursuitController::getLookaheadPoint(DiscretePath& path, double& minIndex, Vector2 point, QLength radius){
+std::optional<Vector2> AdaptivePurePursuitController::getLookaheadPoint(DiscretePath& path, int minIndex, Vector2 point, QLength radius){
     for(int i = (int)minIndex; i < path.size(); i++){
         Vector2& start = path[i];
         Vector2& end = path[i+1];
