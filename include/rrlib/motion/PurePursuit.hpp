@@ -13,7 +13,8 @@ using namespace okapi;
 class AdaptivePurePursuitController{
     FeedForwardv3 feedForwardLeft;
     FeedForwardv3 feedForwardRight;
-    TwoWheelOdometry odometry;
+    //TwoWheelOdometry odometry;
+    std::shared_ptr<okapi::SkidSteerModel> chassis;
 
     public:
     struct Gains{
@@ -29,11 +30,10 @@ class AdaptivePurePursuitController{
         bool operator!=(const Gains& rhs) const;
     };
 
-    AdaptivePurePursuitController(const std::shared_ptr<OdomChassisController>& chassis, 
-                                  const Gains& gains,
-                                  FeedForwardv3 iFFLeft,
-                                  FeedForwardv3 iFFRight,
-                                  const TimeUtil& timeUtil = okapi::TimeUtilFactory::createDefault());
+    AdaptivePurePursuitController(const std::shared_ptr<OdomChassisController>& ichassis, 
+                                  const TimeUtil& timeUtil = okapi::TimeUtilFactory::createDefault()){
+                                     chassis = std::static_pointer_cast<okapi::SkidSteerModel>(ichassis->getModel());
+                                  }
 
     void followPath(DiscretePath& path, QTime timeout = 2_min, bool isReversed = false);
 

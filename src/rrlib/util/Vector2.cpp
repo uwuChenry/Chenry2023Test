@@ -150,4 +150,13 @@ Vector2 Vector2::operator*(double scalar) {
 Vector2 Vector2::operator/(double scalar) {
     return Vector2::divide(*this, scalar);
 }
+
+bool Vector2::operator==(const Vector2& other){
+    return abs(x - other.x) < 1E-9 * meter && abs(y - other.y) < 1E-9 * meter;
+}
+
+bool Vector2::operator!=(const Vector2& other){
+    return !(*this==other);
+}
+
 }

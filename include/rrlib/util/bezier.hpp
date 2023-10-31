@@ -1,14 +1,14 @@
 #pragma once
 
-#include "point2D.hpp"
-#include "util/vector2D.hpp"
-#include "structs.hpp"
-#include "descretePathCurvature.hpp"
+#include "rrlib/util/point2D.hpp"
+#include "rrlib/util/vector2D.hpp"
+#include "rrlib/util/structs.hpp"
+#include "rrlib/util/DescretePath.hpp"
 #include <iostream>
 
 
 
-
+namespace RRLib{
 class CubicBezier
 {
     Point2D p1, c1, c2, p2;
@@ -33,8 +33,8 @@ class CubicBezier
     double getLength(int step = 250);
     double getCurvature(double t) const;
 
-    DescretePathWithCurvature generatePathByStep (int step = 500);
-    DescretePathWithCurvature generatePathByLengthWithCurvature(double length, int initDistStep = 250, int traverseStep = 2000, bool end = true);
+    DiscretePath generatePathByStep (int step = 500);
+    DiscretePath generatePathByLengthWithCurvature(double length, int initDistStep = 250, int traverseStep = 2000, bool end = true);
 
     Point2D getPoint(double t) const;
     Point2D getVelocity(double t) const;
@@ -46,3 +46,4 @@ class CubicBezier
     Point2D getC2();
 };
 
+}

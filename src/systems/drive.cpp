@@ -37,6 +37,7 @@ TwoWheelOdometry odometry(driveChassisPtr, trackingWheelsScales);
 // Creates a pointer to the odometry object, some controllers want pointers
 auto odometryPtr = std::shared_ptr<RRLib::PoseEstimator>(&odometry);
 
+RRLib::AdaptivePurePursuitController ppController (driveChassis);
 
 
 // this creats a task which constantly calculates the odometry
@@ -124,32 +125,32 @@ void turnTo(QAngle target){
     driveChassisPtr->stop();
 }
 
-void drivePID(QLength distance){
-    //error around 1to 1.5
-    auto su = Settled(50, 0.04, 0.2);
-    pidGains driveGains {350, 0.5, 0, 25, 0.2};
-    PID drivePID(driveGains);
-    double error, target;
-    target = distance.convert(meter) + (math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
-    do {
-        error = target - (math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
-        double output = drivePID.calculate(error)/200;
-        pros::lcd::print(1, "error %f", error);
-        pros::lcd::print(2, "output %f", output);
-        pros::lcd::print(3, "integral %f", drivePID.getIntegral());
-        driveChassisPtr->arcade(output, 0);
-        delay(10);
-    } while (!su.isSettled(error));
-    PIDisSettled = true;
-    driveChassisPtr->stop();
-}
+// void drivePID(QLength distance){
+//     //error around 1to 1.5
+//     auto su = Settled(50, 0.04, 0.2);
+//     pidGains driveGains {350, 0.5, 0, 25, 0.2};
+//     PID drivePID(driveGains);
+//     double error, target;
+//     target = distance.convert(meter) + (math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
+//     do {
+//         error = target - (math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
+//         double output = drivePID.calculate(error)/200;
+//         pros::lcd::print(1, "error %f", error);
+//         pros::lcd::print(2, "output %f", output);
+//         pros::lcd::print(3, "integral %f", drivePID.getIntegral());
+//         driveChassisPtr->arcade(output, 0);
+//         delay(10);
+//     } while (!su.isSettled(error));
+//     PIDisSettled = true;
+//     driveChassisPtr->stop();
+// }
 
-Task DriveTask{ [] {
-    while (Task::notify_take(true, TIMEOUT_MAX)) {
-        drivePID(movePidDistance);
-        movePidDistance = 0_m;
-    }
-} };
+// Task DriveTask{ [] {
+//     while (Task::notify_take(true, TIMEOUT_MAX)) {
+//         drivePID(movePidDistance);
+//         movePidDistance = 0_m;
+//     }
+// } };
 
 void waitUntilSettled(){
     while (!PIDisSettled)
@@ -159,11 +160,11 @@ void waitUntilSettled(){
     
 }
 
-void movePID(QLength distance){
-    movePidDistance = distance;
-    PIDisSettled = false;
-    DriveTask.notify();
-}
+// void movePID(QLength distance){
+//     movePidDistance = distance;
+//     PIDisSettled = false;
+//     DriveTask.notify();
+// }
 
 
 void resetMotorEncoder(){

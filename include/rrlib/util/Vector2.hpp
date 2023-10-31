@@ -55,5 +55,7 @@ public:
     Vector2 operator-(const Vector2& rhs);
     Vector2 operator*(double scalar);
     Vector2 operator/(double scalar);
+    bool operator==(const Vector2& other);
+    bool operator!=(const Vector2& other);
 };
 }

@@ -9,44 +9,25 @@ void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout
     Vector2 lookAheadPoint = path.front();
     const ChassisScales scales = chassis->getChassisScales();
     timeUtil.getTimer()->placeMark();
-
-
+    double lastError = 0;
 
     do{
-        Pose pos = odometry.getPose();
+        Pose pos = {chassis->getState().x, chassis->getState().y, chassis->getState().theta};
         closestPointIter = closestPoint(closestPointIter, path.end(), pos.position);
         lookAheadPoint = getLookaheadPoint(path, lookaheadPointT, pos.position, gains.lookAhead).value_or(lookAheadPoint);
-        
-        // double curvature = curvatureToReachPoint(pos, lookAheadPoint);
-        // QSpeed velocity;
-        // QAcceleration acceleration;
+        double angularError = (pos.position.angleTo(lookAheadPoint) - pos.heading).convert(degree);
 
-        // if(isReversed){
-        //     acceleration *= -1;
-        //     velocity *= -1;
-        //     curvature *= -1;
-        // }
-
-        // const auto [leftVelocity, rightVelocity] = wheelForwardKinematics(velocity, curvature, scales.wheelTrack);
-        // const auto [leftAccel, rightAccel] = wheelForwardKinematics(acceleration, curvature, scales.wheelTrack);
-
-        // if(leftController && rightController){
-        //     const double leftVoltage = leftController->calculate(leftVelocity, leftAccel);
-        //     const double rightVoltage = leftController->calculate(rightVelocity, rightAccel);
-        //     chassis->getModel()->tank(leftVoltage, rightVoltage);
-        // }
-        // else{
-        //     const double leftRPM = linearToWheelVelocity(leftVelocity, scales.wheelTrack).convert(rpm) * chassis->getGearsetRatioPair().ratio;
-        //     const double rightRPM = linearToWheelVelocity(leftVelocity, scales.wheelTrack).convert(rpm) * chassis->getGearsetRatioPair().ratio;
-        //     leftMotor->moveVelocity(leftRPM);
-        //     rightMotor->moveVelocity(rightRPM);
-        // }
+        double derivative = angularError - lastError;
+        double angularOutput = angularError * 0.001 + derivative * 0.0;
+        lastError = angularError;
+        leftMotor->moveVoltage(4000 + angularOutput);
+        rightMotor->moveVoltage(4000 - angularOutput);
 
         if(*closestPointIter == path.back()){
             return;
         }
 
-    }while(*closestPointIter != path.back() && timeUtil.getTimer()->getDtFromMark() < timeout && !pros::Task::notify_take(true, 10));
+    } while(*closestPointIter != path.back() && timeUtil.getTimer()->getDtFromMark() < timeout && !pros::Task::notify_take(true, 10));
 }
 
 void AdaptivePurePursuitController::stop(){

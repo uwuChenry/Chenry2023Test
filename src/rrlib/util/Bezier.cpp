@@ -1,6 +1,6 @@
-#include "include/bezier.hpp"
+#include "rrlib/util/bezier.hpp"
 
-
+namespace RRLib{
 double CubicBezier::getLength(int step){
     double out;
     double deltaStep = 1.0 / step;
@@ -26,48 +26,41 @@ void CubicBezier::setPoints(Vector2D start, Vector2D end){
     this->c2 = end.getSecondPoint();
 }
 
-DescretePathWithCurvature CubicBezier::generatePathByStep(int step){
-    DescretePathWithCurvature out;
-    for (size_t i = 0; i < 1; i += 1 / step)
-    {
-        out.path.push_back(getPoint(i));
-        out.curvature.push_back(getCurvature(i));
-    }
-    return out;
-}
+// DiscretePath CubicBezier::generatePathByStep(int step){
+//     DiscretePath out;
+//     for (size_t i = 0; i < 1; i += 1 / step)
+//     {
+//         out.path.push_back(getPoint(i));
+//         //out.curvature.push_back(getCurvature(i));
+//     }
+//     return out;
+// }
 
 
-DescretePathWithCurvature CubicBezier::generatePathByLengthWithCurvature(double length, int initDistStep, int traverseStep, bool end){
+DiscretePath CubicBezier::generatePathByLengthWithCurvature(double length, int initDistStep, int traverseStep, bool end){
     double totalDist = getLength(initDistStep);
     double distPerSegment = totalDist / std::ceil(totalDist / length);
     double traversed = 0;
-    DescretePathWithCurvature out;
-    out.setDistance(totalDist);
-    out.path.push_back(getPoint(0));
-    out.curvature.push_back(getCurvature(0));
 
     double seg = 0;
+    std::vector<Vector2> path;
 
     for (double t = 0; t < traverseStep; t++){
         traversed += getPoint(t / traverseStep).distanceTo(getPoint(t / traverseStep + 1.0/traverseStep));
         if (traversed >= distPerSegment){
             seg += traversed;
             traversed = 0;
-            out.path.push_back(getPoint(t / traverseStep));
-            out.curvature.push_back(getCurvature(t / traverseStep));
+            path.push_back({getPoint(t/traverseStep).getX() * meter, getPoint(t/traverseStep).getX() * meter});
         }
     }
-    if (out.path.back().distanceTo(getPoint(1)) < distPerSegment / 2){
-        out.path.pop_back();
-        out.curvature.pop_back();
+    if (path.back().distanceTo({getPoint(1).getX() * meter, getPoint(1).getX() * meter}) < (distPerSegment / 2)*meter){
+        path.pop_back();
     }
     if (end){
-        out.path.push_back(getPoint(1));
-        out.curvature.push_back(getCurvature(1));
-        
+        path.push_back({getPoint(1).getX() * meter, getPoint(1).getX() * meter}); 
     }   
-    out.setDeltaLength(seg/out.getSize());
-    return out;
+
+    return DiscretePath(path);
 }
 
 Point2D CubicBezier::getPoint(double t) const{
@@ -103,4 +96,5 @@ Point2D CubicBezier::getC1(){
 }
 Point2D CubicBezier::getC2(){
     return this->c2;
+}
 }
