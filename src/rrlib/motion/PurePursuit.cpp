@@ -7,14 +7,14 @@ void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout
     auto closestPointIter = path.begin();
     double lookaheadPointT = 0;
     Vector2 lookAheadPoint = path.front();
-    const ChassisScales scales = chassis->getChassisScales();
+    const ChassisScales scales = chassisController->getChassisScales();
     timeUtil.getTimer()->placeMark();
     double lastError = 0;
 
     do{
-        Pose pos = {chassis->getState().x, chassis->getState().y, chassis->getState().theta};
+        Pose pos = {chassisController->getState().x, chassisController->getState().y, chassisController->getState().theta};
         closestPointIter = closestPoint(closestPointIter, path.end(), pos.position);
-        lookAheadPoint = getLookaheadPoint(path, lookaheadPointT, pos.position, gains.lookAhead).value_or(lookAheadPoint);
+        lookAheadPoint = getLookaheadPoint(path, lookaheadPointT, pos.position, lookAhead).value_or(lookAheadPoint);
         double angularError = (pos.position.angleTo(lookAheadPoint) - pos.heading).convert(degree);
 
         double derivative = angularError - lastError;
@@ -27,14 +27,15 @@ void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout
             return;
         }
 
-    } while(*closestPointIter != path.back() && timeUtil.getTimer()->getDtFromMark() < timeout && !pros::Task::notify_take(true, 10));
+    } while(*closestPointIter != path.back() && timeUtil.getTimer()->getDtFromMark() < timeout);
+    chassisController->stop();
 }
 
-void AdaptivePurePursuitController::stop(){
-    task.notify();
-    pros::delay(10);
-    chassis->stop();
-}
+// void AdaptivePurePursuitController::stop(){
+//     task.notify();
+//     pros::delay(10);
+//     chassis->stop();
+// }
 
 void waitUntilSettled(){
     while(true){

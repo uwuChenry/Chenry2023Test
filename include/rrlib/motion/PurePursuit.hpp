@@ -11,10 +11,23 @@ namespace RRLib{
 using namespace okapi;
 
 class AdaptivePurePursuitController{
-    FeedForwardv3 feedForwardLeft;
-    FeedForwardv3 feedForwardRight;
+    // FeedForwardv3 feedForwardLeft;
+    // FeedForwardv3 feedForwardRight;
     //TwoWheelOdometry odometry;
+    private:
+
+    std::optional<Vector2> getLookaheadPoint(DiscretePath& path, double& minIndex, Vector2 point, QLength radius);
+    // void generateKinematics();
+    std::shared_ptr<OdomChassisController> chassisController;
+    std::shared_ptr<AbstractMotor> leftMotor;
+    std::shared_ptr<AbstractMotor> rightMotor;
     std::shared_ptr<okapi::SkidSteerModel> chassis;
+    // Gains gains;
+
+	TimeUtil timeUtil;
+    QLength lookAhead = 15_cm;
+
+    pros::Task* task = nullptr;
 
     public:
     struct Gains{
@@ -31,30 +44,22 @@ class AdaptivePurePursuitController{
     };
 
     AdaptivePurePursuitController(const std::shared_ptr<OdomChassisController>& ichassis, 
-                                  const TimeUtil& timeUtil = okapi::TimeUtilFactory::createDefault()){
+                                  const TimeUtil& itimeUtil = okapi::TimeUtilFactory::createDefault())
+                                  : chassisController (ichassis)
+                                  , timeUtil(itimeUtil)
+                                  {
                                      chassis = std::static_pointer_cast<okapi::SkidSteerModel>(ichassis->getModel());
+                                     leftMotor = chassis->getLeftSideMotor();
+                                     rightMotor = chassis->getRightSideMotor();
                                   }
 
     void followPath(DiscretePath& path, QTime timeout = 2_min, bool isReversed = false);
 
     void stop();
 
-    void waitUntilSettled();
+    // void waitUntilSettled();
 
-    private:
 
-    std::optional<Vector2> getLookaheadPoint(DiscretePath& path, double& minIndex, Vector2 point, QLength radius);
-    void generateKinematics();
-
-    std::shared_ptr<OdomChassisController> chassis;
-    std::shared_ptr<AbstractMotor> leftMotor;
-    std::shared_ptr<AbstractMotor> rightMotor;
-    
-    Gains gains;
-
-	TimeUtil timeUtil;
-
-    pros::Task task;
 };
 
 }
