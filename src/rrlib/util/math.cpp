@@ -9,6 +9,11 @@ double constrainAngleDouble(double angle){
     return atan2(sin(angle / 180.0 * 3.14159265358979323846), cos(angle / 180.0 * 3.14159265358979323846))*180/3.14159265358979323846;
 }
 
+double encoderTickToMeter(double encoderTicks){
+        return encoderTicks/300 * (3.0 / 5.0) * 0.08255 * 3.141592653589793116;
+}
+
+
 QAngle constrainAngle(QAngle in, QAngle min, QAngle max) {
     double out = in.convert(radian);
 

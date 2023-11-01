@@ -7,7 +7,7 @@ extern std::shared_ptr<OdomChassisController> driveChassis;
 extern std::shared_ptr<ChassisModel> driveChassisPtr;
 //extern ProfileController profileController;
 extern scurveProfile linearScurveProfile;
-//extern RRLib::betterLinearProfile linearProflie;
+extern RRLib::betterLinearProfile linearProflie;
 extern RRLib::AdaptivePurePursuitController ppController;
 extern void turnTo(QAngle target);
 

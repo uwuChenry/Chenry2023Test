@@ -13,4 +13,5 @@ void autonomous() {
     // ppController.followPath(testPathDiscrete);
     linearScurveProfile.moveForwards(2_m);
     linearScurveProfile.printVectorPosition(linearScurveProfile.pathTrajectory);
+    linearProflie.moveForwards(2_m);
 }
