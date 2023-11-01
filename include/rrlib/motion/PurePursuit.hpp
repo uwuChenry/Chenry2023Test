@@ -56,7 +56,7 @@ class AdaptivePurePursuitController{
                                   }
 
     void followPath(DiscretePath& path, QTime timeout = 2_min, bool isReversed = false);
-    int AdaptivePurePursuitController::getClosestPoint(Pose currentPos, DiscretePath& path);
+    int getClosestPoint(Pose currentPos, DiscretePath& path);
     void stop();
     
 

@@ -50,14 +50,14 @@ DiscretePath CubicBezier::generatePathByLengthWithCurvature(double length, int i
         if (traversed >= distPerSegment){
             seg += traversed;
             traversed = 0;
-            path.push_back({getPoint(t/traverseStep).getX() * meter, getPoint(t/traverseStep).getX() * meter});
+            path.push_back({getPoint(t/traverseStep).getX() * meter, getPoint(t/traverseStep).getY() * meter});
         }
     }
-    if (path.back().distanceTo({getPoint(1).getX() * meter, getPoint(1).getX() * meter}) < (distPerSegment / 2)*meter){
+    if (path.back().distanceTo({getPoint(1).getX() * meter, getPoint(1).getY() * meter}) < (distPerSegment / 2)*meter){
         path.pop_back();
     }
     if (end){
-        path.push_back({getPoint(1).getX() * meter, getPoint(1).getX() * meter}); 
+        path.push_back({getPoint(1).getX() * meter, getPoint(1).getY() * meter}); 
     }   
 
     return DiscretePath(path);

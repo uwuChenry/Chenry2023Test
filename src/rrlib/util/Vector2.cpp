@@ -63,7 +63,7 @@ QLength Vector2::distanceBetween(Vector2 a, Vector2 b) {
 }
 
 QAngle Vector2::angleBetween(Vector2 a, Vector2 b) {
-    return subtract(a, b).getTheta();
+    return subtract(b, a).getTheta();
 }
 
 QLength Vector2::dot(Vector2 a, Vector2 b) {
@@ -124,7 +124,7 @@ QLength Vector2::getY() {
 }
 
 QAngle Vector2::getTheta() {
-    return radian * std::atan2(x.convert(meter), y.convert(meter));
+    return radian * std::atan2(y.convert(meter), x.convert(meter));
 }
 
 QLength Vector2::getMag() {
