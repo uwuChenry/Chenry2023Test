@@ -87,6 +87,8 @@ KinematicConstraints yes(1.2, 2.3, 10);
 FeedForwardGains2 leftScurveGain3{6350, 1500, 96000, 0, 1000, 1000};
 FeedForwardGains2 rightScurveGain3{6400, 1500, 96000, 0, 1000, 1000};
 
+//betterLinearProfile linearProflie(yes, driveChassis, drivenWheelsScales, gearing, leftGains3, rightGains3);
+betterLinearProfile linearProflie(constraints2, driveChassis, drivenWheelsScales, gearing, leftGains3, rightGains3);
 
 
 scurveProfile linearScurveProfile(
@@ -125,25 +127,28 @@ void turnTo(QAngle target){
     driveChassisPtr->stop();
 }
 
-// void drivePID(QLength distance){
-//     //error around 1to 1.5
-//     auto su = Settled(50, 0.04, 0.2);
-//     pidGains driveGains {350, 0.5, 0, 25, 0.2};
-//     PID drivePID(driveGains);
-//     double error, target;
-//     target = distance.convert(meter) + (math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
-//     do {
-//         error = target - (math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
-//         double output = drivePID.calculate(error)/200;
-//         pros::lcd::print(1, "error %f", error);
-//         pros::lcd::print(2, "output %f", output);
-//         pros::lcd::print(3, "integral %f", drivePID.getIntegral());
-//         driveChassisPtr->arcade(output, 0);
-//         delay(10);
-//     } while (!su.isSettled(error));
-//     PIDisSettled = true;
-//     driveChassisPtr->stop();
-// }
+void drivePID(QLength distance){
+    //error around 1to 1.5
+    auto su = Settled(50, 0.04, 0.2);
+    pidGains driveGains {350, 0, 0, 25, 0.2};
+    PID drivePID(driveGains);
+    double error, target;
+    rightMotors.tarePosition();
+    leftMotors.tarePosition();
+    target = distance.convert(meter) + (math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
+    do {
+        error = target - (math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
+        double output = drivePID.calculate(error)/200;
+        pros::lcd::print(1, "error %f", error);
+        pros::lcd::print(2, "output %f", output);
+        pros::lcd::print(3, "integral %f", drivePID.getIntegral());
+        driveChassisPtr->arcade(output, 0);
+        printf("%f current pos", math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
+        delay(10);
+    } while (!su.isSettled(error));
+    //PIDisSettled = true;
+    driveChassisPtr->stop();
+}
 
 // Task DriveTask{ [] {
 //     while (Task::notify_take(true, TIMEOUT_MAX)) {

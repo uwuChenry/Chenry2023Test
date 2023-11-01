@@ -200,9 +200,9 @@ using namespace okapi;
             
             double leftVoltage = feedForwardLeft.calculate(thing.velocity, thing.acceleration, leftPosError, leftVelError);
             double rightVoltage = feedForwardRight.calculate(thing.velocity, thing.acceleration, rightPosError, rightVelError);
-            leftSideMotor->moveVoltage(leftVoltage);
-            rightSideMotor->moveVoltage(rightVoltage);
-            
+            // leftSideMotor->moveVoltage(leftVoltage);
+            // rightSideMotor->moveVoltage(rightVoltage);
+
             printf("%f \n", leftCurrentPositionMeter);
             //printf("%f \n", leftcurrentvelocity);
             //printf("%f \n", rightVoltage);

@@ -334,8 +334,8 @@ void scurveProfile::executePath(){
             leftVoltage = feedForwardLeft.calculateIfReversed(thing.velocity, thing.acceleration, leftPosError, leftVelError);
             rightVoltage = feedForwardRight.calculateIfReversed(thing.velocity, thing.acceleration, rightPosError, rightVelError);
             }
-            leftSideMotor->moveVoltage(leftVoltage);
-            rightSideMotor->moveVoltage(rightVoltage);
+            //leftSideMotor->moveVoltage(leftVoltage);
+            //rightSideMotor->moveVoltage(rightVoltage);
             
             //printf("%f \n", filteredVelocity);
             //printf("%f \n", leftVoltage);
