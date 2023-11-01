@@ -16,13 +16,15 @@ class AdaptivePurePursuitController{
     //TwoWheelOdometry odometry;
     private:
 
-    std::optional<Vector2> getLookaheadPoint(DiscretePath& path, double& minIndex, Vector2 point, QLength radius);
+    std::optional<Vector2> getLookaheadPoint(DiscretePath& path, int minIndex, Vector2 point, QLength radius);
     // void generateKinematics();
     std::shared_ptr<OdomChassisController> chassisController;
     std::shared_ptr<AbstractMotor> leftMotor;
     std::shared_ptr<AbstractMotor> rightMotor;
     std::shared_ptr<okapi::SkidSteerModel> chassis;
     // Gains gains;
+
+    std::optional<int> prevClosest {std::nullopt};
 
 	TimeUtil timeUtil;
     QLength lookAhead = 15_cm;
@@ -54,8 +56,9 @@ class AdaptivePurePursuitController{
                                   }
 
     void followPath(DiscretePath& path, QTime timeout = 2_min, bool isReversed = false);
-
+    int AdaptivePurePursuitController::getClosestPoint(Pose currentPos, DiscretePath& path);
     void stop();
+    
 
     // void waitUntilSettled();
 
