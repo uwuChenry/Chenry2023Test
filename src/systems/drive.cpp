@@ -110,8 +110,8 @@ void setMotors(double left, double right){
 
 
 void turnTo(QAngle target){
-    auto su = Settled(200, 1, 0.2);
-    pidGains turnGains {2.2, 0.5, 20, 50, 15};
+    auto su = Settled(200, 2, 0.2);
+    pidGains turnGains {3, 0, 20, 50, 15};
     PID turnPID(turnGains);
     double error, mappedError;
     do {
