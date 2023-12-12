@@ -11,6 +11,9 @@ extern RRLib::betterLinearProfile linearProflie;
 extern RRLib::AdaptivePurePursuitController ppController;
 extern void turnTo(QAngle target);
 
+extern MotorGroup leftMotors;
+extern MotorGroup rightMotors;
+
 extern Controller controller;
 extern void printEncoders();
 extern void resetMotorEncoder();
@@ -23,11 +26,10 @@ extern void turnToOdom(QAngle target);
 
 
 extern void waitUntilGyroRest();
-
+extern void drivePID(QLength distance);
 
 extern void waitUntilSettled();
 
-extern void movePID(QLength distance);
 
 extern void setMotors(double left, double right);
 }

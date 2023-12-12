@@ -10,7 +10,7 @@ double constrainAngleDouble(double angle){
 }
 
 double encoderTickToMeter(double encoderTicks){
-        return encoderTicks/300 * (3.0 / 5.0) * 0.08255 * 3.141592653589793116;
+        return encoderTicks/300.0 * (3.0 / 5.0) * 0.08255 * 3.141592653589793116;
 }
 
 

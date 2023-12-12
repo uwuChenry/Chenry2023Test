@@ -127,9 +127,14 @@ void turnTo(QAngle target){
     driveChassisPtr->stop();
 }
 
+double rpmToLinear(double rpm){
+    return 0.08255 * (3.0/5.0) / 2 * (rpm / 60 * 6.28318530718);
+}
+
 void drivePID(QLength distance){
     //error around 1to 1.5
-    auto su = Settled(50, 0.04, 0.2);
+    double filteredVelocity = 0;
+    auto su = Settled(100, 0.04, 0.2);
     pidGains driveGains {350, 0, 0, 25, 0.2};
     PID drivePID(driveGains);
     double error, target;
@@ -143,7 +148,12 @@ void drivePID(QLength distance){
         pros::lcd::print(2, "output %f", output);
         pros::lcd::print(3, "integral %f", drivePID.getIntegral());
         driveChassisPtr->arcade(output, 0);
-        printf("%f current pos", math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
+        //printf("%f \n", math::encoderTickToMeter((rightMotors.getPosition() + leftMotors.getPosition())/2));
+
+        double leftcurrentvelocity = rpmToLinear(rightMotors.getActualVelocity());
+        filteredVelocity = filteredVelocity * 0.75 + leftcurrentvelocity * 0.25;
+        printf("%f \n", filteredVelocity);
+        //printf("%f \n", math::encoderTickToMeter(leftMotors.getPosition()));
         delay(10);
     } while (!su.isSettled(error));
     //PIDisSettled = true;

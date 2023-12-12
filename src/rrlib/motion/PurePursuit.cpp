@@ -18,35 +18,25 @@ int AdaptivePurePursuitController::getClosestPoint(Pose currentPos, DiscretePath
     return closest;
 }
 
+
 void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout, bool isReversed){
-    auto closestPointIter = path.begin();
-    double lookaheadPointT = 0;
-    Vector2 lookAheadPoint = path.front();
+    int closestPointIndex = 0;
     const ChassisScales scales = chassisController->getChassisScales();
+    Vector2 lookAheadPoint = path[0];
     timeUtil.getTimer()->placeMark();
-    double lastError = 0;
 
     do{
         Pose pos = {chassisController->getState().x, chassisController->getState().y, chassisController->getState().theta};
-        closestPointIter = closestPoint(closestPointIter, path.end(), pos.position);
+        closestPointIndex = getClosestPoint(pos, path);
         
-        lookAheadPoint = getLookaheadPoint(path, lookaheadPointT, pos.position, lookAhead).value_or(lookAheadPoint);
-        double angularError = (pos.position.angleTo(lookAheadPoint) - pos.heading).convert(degree);
+        lookAheadPoint = getLookaheadPoint(path, closestPointIndex, pos.position, lookAhead).value_or(lookAheadPoint);
 
-        double derivative = angularError - lastError;
-        double angularOutput = angularError * 0.001 + derivative * 0.0;
-        lastError = angularError;
-        leftMotor->moveVoltage(4000 + angularOutput);
-        rightMotor->moveVoltage(4000 - angularOutput);
 
-        if(*closestPointIter == path.back()){
-            return;
-        }
-        auto thing = *closestPointIter;
-        printf("%f cloestpointx, %f pos.possition \n", thing.getX().convert(centimeter), pos.position.getX().convert(centimeter));
+        //auto thing = *closestPointIter;
+        //printf("%f cloestpointx, %f pos.possition \n", thing.getX().convert(centimeter), pos.position.getX().convert(centimeter));
         //printf("%f path back", path.back().getX().convert(centimeter));
         pros::delay(10);
-    } while(*closestPointIter != path.back() && timeUtil.getTimer()->getDtFromMark() < timeout);
+    } while(timeUtil.getTimer()->getDtFromMark() < timeout);
     chassisController->stop();
 }
 
@@ -67,9 +57,7 @@ std::optional<Vector2> AdaptivePurePursuitController::getLookaheadPoint(Discrete
         Vector2& start = path[i];
         Vector2& end = path[i+1];
         const auto t = math::circleLineIntersection(start, end, point, radius);
-
-        if(t && t.value() >= minIndex){
-            minIndex = t.value();
+        if(t){
             return start + (end - start) * t.value();
         }
     }
