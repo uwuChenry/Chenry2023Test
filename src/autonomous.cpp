@@ -12,9 +12,9 @@ void autonomous() {
     using drive::linearScurveProfile;
     using namespace drive;
     
-    // RRLib::CubicBezier testPath({0, 0, 0}, {1, 0, 0});
-    // RRLib::DiscretePath testPathDiscrete(testPath.generatePathByLengthWithCurvature(0.05));
-    // ppController.followPath(testPathDiscrete);
+    RRLib::CubicBezier testPath({0, 0, 0}, {1, 0, 0});
+    RRLib::DiscretePath testPathDiscrete(testPath.generatePathByLengthWithCurvature(0.05));
+    ppController.followPath(testPathDiscrete);
     //linearScurveProfile.moveForwards(2_m);
     //linearScurveProfile.printVectorPosition(linearScurveProfile.pathTrajectory);
     //linearProflie.moveForwards(2_m);
@@ -46,7 +46,7 @@ void autonomous() {
     //     printf("%f \n", math::encoderTickToMeter(leftMotors.getPosition()));
     //     delay(10);
     // }
-    drivePID(2_m);
-    turnTo(90_deg);
+    // drivePID(2_m);
+    // turnTo(90_deg);
     
 }

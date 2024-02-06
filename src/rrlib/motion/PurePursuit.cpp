@@ -23,17 +23,30 @@ void AdaptivePurePursuitController::followPath(DiscretePath& path, QTime timeout
     int closestPointIndex = 0;
     const ChassisScales scales = chassisController->getChassisScales();
     Vector2 lookAheadPoint = path[0];
+    Vector2 lastLookAheadPoint = path[0];
     timeUtil.getTimer()->placeMark();
 
     do{
         Pose pos = {chassisController->getState().x, chassisController->getState().y, chassisController->getState().theta};
         closestPointIndex = getClosestPoint(pos, path);
         
-        lookAheadPoint = getLookaheadPoint(path, closestPointIndex, pos.position, lookAhead).value_or(lookAheadPoint);
-
+        lookAheadPoint = getLookaheadPoint(path, closestPointIndex, pos.position, lookAhead).value_or(lastLookAheadPoint);
+        lastLookAheadPoint = lookAheadPoint;
 
         //auto thing = *closestPointIter;
-        //printf("%f cloestpointx, %f pos.possition \n", thing.getX().convert(centimeter), pos.position.getX().convert(centimeter));
+        // printf("%f, %f , %f pos x y heading   ", 
+        // pos.position.getX().convert(centimeter), 
+        // pos.position.getY().convert(centimeter),
+        // pos.heading.convert(degree));
+
+        printf("%d index %f, %f index pos xy    ", 
+        closestPointIndex, 
+        path[closestPointIndex].x.convert(centimeter),
+        path[closestPointIndex].y.convert(centimeter));
+        printf("%f, %f, x y lookahead \n", 
+        lookAheadPoint.x.convert(centimeter),
+        lookAheadPoint.y.convert(centimeter));
+        //printf("%f lookaheadpointx, %f pos.x, %f pos.y, %d index \n", lookAheadPoint.getX().convert(centimeter), pos.position.getX().convert(centimeter), pos.position.getY().convert(centimeter),closestPointIndex);
         //printf("%f path back", path.back().getX().convert(centimeter));
         pros::delay(10);
     } while(timeUtil.getTimer()->getDtFromMark() < timeout);
@@ -53,7 +66,7 @@ void waitUntilSettled(){
 }
 
 std::optional<Vector2> AdaptivePurePursuitController::getLookaheadPoint(DiscretePath& path, int minIndex, Vector2 point, QLength radius){
-    for(int i = minIndex; i < path.size(); i++){
+    for(int i = minIndex; i < path.size()-1; i++){
         Vector2& start = path[i];
         Vector2& end = path[i+1];
         const auto t = math::circleLineIntersection(start, end, point, radius);

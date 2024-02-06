@@ -25,9 +25,9 @@ AbstractMotor::GearsetRatioPair gearing(AbstractMotor::gearset::blue, 5.0/3.0);
 
 std::shared_ptr<OdomChassisController> driveChassis = ChassisControllerBuilder()
 .withMotors(leftMotors, rightMotors)
-.withSensors(leftTrackingEncoder, rightTrackingEncoder)
+//.withSensors(leftTrackingEncoder, rightTrackingEncoder)
 .withDimensions(AbstractMotor::gearset::blue, drivenWheelsScales)
-.withOdometry(trackingWheelsScales)
+.withOdometry(drivenWheelsScales)
 .buildOdometry();
 
 std::shared_ptr<ChassisModel> driveChassisPtr = driveChassis->getModel();

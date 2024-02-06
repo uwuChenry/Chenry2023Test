@@ -9,10 +9,11 @@ using namespace okapi::literals;
 
 // A class for a 2 dimensional vector, using okapi units, designed for position
 class Vector2 {
+public:
     okapi::QLength x;
     okapi::QLength y;
 
-public:
+
     Vector2();
     Vector2(okapi::QLength x, okapi::QLength y);
     Vector2(okapi::QAngle theta);
