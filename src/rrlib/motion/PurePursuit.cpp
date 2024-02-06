@@ -53,7 +53,7 @@ void waitUntilSettled(){
 }
 
 std::optional<Vector2> AdaptivePurePursuitController::getLookaheadPoint(DiscretePath& path, int minIndex, Vector2 point, QLength radius){
-    for(int i = (int)minIndex; i < path.size(); i++){
+    for(int i = minIndex; i < path.size(); i++){
         Vector2& start = path[i];
         Vector2& end = path[i+1];
         const auto t = math::circleLineIntersection(start, end, point, radius);
